@@ -7,5 +7,6 @@ OutputData/
 prompts/personality.md
 training_data/
 progress.txt
+convokit.config.json
 
 .env
