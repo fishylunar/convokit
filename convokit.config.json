@@ -1,0 +1,13 @@
+{
+    "targetUsers": [
+        { "providerId": "discord", "id": "907359971337986098" }
+    ],
+    "inputDataDirName": "InputData",
+    "outputDataDirName": "OutputData2",
+    "sampleSize": 5000,
+    "systemPrompt": "You are a helpful assistant.",
+    "enableDebugging": false,
+    "shouldMergeConsecutiveMessages": false,
+    "enableWarnings": false,
+    "anonymizeProviderConversationIds": true
+}

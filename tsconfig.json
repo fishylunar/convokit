@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "module": "es2022",
+      "esModuleInterop": true,
+      "target": "ES2022",
+      "moduleResolution": "Node",
+      "sourceMap": false,
+      "outDir": "dist",
+      "skipLibCheck": true,
+      "typeRoots": [
+        "./node_modules/@types",
+        "./ck/types"
+      ],
+    },
+    "lib": ["ES2022"],
+    "exclude": [
+      "**/*.spec.ts",
+      "**/*.test.ts",
+      "**/test/**",
+      "**/tests/**",
+      "**/test-helpers/**",
+      "**/tests-helpers/**"
+    ],
+  }
+  

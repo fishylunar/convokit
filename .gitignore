@@ -1,0 +1,11 @@
+geminiConversationTest.ts
+
+node_modules/
+dist/
+InputData/
+OutputData/
+prompts/personality.md
+training_data/
+progress.txt
+
+.env
