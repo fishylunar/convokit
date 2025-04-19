@@ -5,6 +5,11 @@
   "author": "fishylunar",
   "type": "module",
   "types": "index",
+  "homepage": "https://github.com/fishylunar/convokit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fishylunar/convokit.git"
+  },
   "scripts": {
     "start": "node dist/index.js",
     "build": "rm -rf ./dist && tsc",
