@@ -1,5 +1,4 @@
-import { PluginInfo, FormatterPluginClass, ConverterPluginClass, FilterPluginClass } from './types/PluginTypes';
-import { ConvoKitLogging as ckl } from './ConvoKitLogging';
+import { ConvoKitLogging as ckl, PluginInfo, FormatterPluginClass, ConverterPluginClass, FilterPluginClass } from '..';
 
 /**
  * Registry for all available plugins (formatters, converters, filters).

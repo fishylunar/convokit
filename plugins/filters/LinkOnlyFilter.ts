@@ -1,5 +1,4 @@
-import { PluginRegistry } from '../../ck/PluginRegistry';
-import type { FilterPluginClass } from '../../ck/types/PluginTypes';
+import { PluginRegistry, type FilterPluginClass } from '../..';
 
 export class LinkOnlyFilter implements FilterPluginClass {
   PluginInfo = {

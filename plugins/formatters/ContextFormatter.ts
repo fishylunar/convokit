@@ -1,7 +1,6 @@
-import { PluginRegistry } from '../../ck/PluginRegistry';
-import { FormatterPluginClass } from '../../ck/types/PluginTypes';
+import { PluginRegistry, FormatterPluginClass, ConvoKitLogging as ckl } from '../..';
 import { ParseToCKContext, CKContextOptions, CKContextResult } from '../../ck/internal_plugins/formatters/ConvoKitContext';
-import { ConvoKitLogging as ckl } from '../../ck/ConvoKitLogging';
+
 export class ContextFormatter implements FormatterPluginClass {
   PluginInfo = {
     id: 'context',

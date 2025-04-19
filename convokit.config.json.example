@@ -1,9 +1,10 @@
 {
     "targetUsers": [
-        { "providerId": "discord", "id": "discord id" }
+        { "providerId": "discord", "id": "discord id" },
+        { "providerId": "telegram", "id": "telegram id"}
     ],
     "inputDataDirName": "InputData",
-    "outputDataDirName": "OutputData2",
+    "outputDataDirName": "OutputData",
     "sampleSize": 5000,
     "systemPrompt": "You are a helpful assistant.",
     "enableDebugging": false,

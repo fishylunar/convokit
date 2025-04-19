@@ -1,8 +1,7 @@
 
-import { ConvoKitConversation, ConvoKitMessage } from '../ck/types/ConvoKitTypes';
-import { ConvoKitProvider } from '../ck/types/ConvoKitProvider';
-import { ProviderRegistry } from '../ck/ProviderRegistry';
-import { getConfig, loadConfig } from '../ck/ConvoKitConfig';
+
+import { ConvoKitConversation, ConvoKitMessage, ConvoKitProvider,
+    ProviderRegistry, getConfig, loadConfig } from '..';
 
 // Ensure configuration is loaded before defining provider logic that might depend on it.
 await loadConfig();
@@ -143,7 +142,7 @@ function getSenderAndReceiverInfo(chat_data: DiscordData): { sender: { id: strin
     } };
 }
 
-function convertToLLMConvoKitFormat(chat_data: DiscordData): ConvoKitConversation {
+function convertToConvoKitFormat(chat_data: DiscordData): ConvoKitConversation {
     let conversationId = chat_data.channel.id;
     if(getConfig().anonymizeProviderConversationIds) {
         conversationId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
@@ -178,7 +177,7 @@ export const ProviderInfo = {
     name: "Discord (DiscordChatExporter)",
     description: "Discord chat data exported using DiscordChatExporter. Will read from the Discord_ChatExporter folder.",
     version: "1.0.0",
-    author: "LLMConvoKit",
+    author: "ConvoKit",
     InputDataInfo: {
         fileExtension: ".json",
         directoryName: "Discord",
@@ -197,7 +196,7 @@ export class Provider implements ConvoKitProvider  {
         return checkIfCompatible(this.Data);
     }
     Convert(): ConvoKitConversation {
-        return convertToLLMConvoKitFormat(this.Data);
+        return convertToConvoKitFormat(this.Data);
     }
 }
 

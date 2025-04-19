@@ -1,7 +1,5 @@
-import { ConvoKitConversation, ConvoKitMessage, ConvoKitTargetUser } from '../../types/ConvoKitTypes';
-import { PluginRegistry } from '../../PluginRegistry';
-import type { FilterPluginClass } from '../../types/PluginTypes';
-import { ConvoKitLogging as ckl } from '../../ConvoKitLogging';
+import {ConvoKitLogging as ckl, FilterPluginClass, PluginRegistry,  ConvoKitConversation, ConvoKitMessage, ConvoKitTargetUser} from "../../../"
+
 // --- Default Constants ---
 // These will be used if not provided in options
 const DEFAULT_MAX_TIME_GAP_MINUTES = 120;

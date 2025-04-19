@@ -1,16 +1,22 @@
-import fs from 'fs/promises'; // Use promises version of fs
+import fs from 'fs/promises';
 import Path from 'path'
-import { ConvoKitLogging as ckl } from "./ck/ConvoKitLogging";
 import { config } from "dotenv";
-import { ConvoKit as CK } from '.'; // Import ConvoKit
-import { loadConfig, getConfig } from './ck/ConvoKitConfig'; // Import loadConfig function
+import { ConvoKitLogging as ckl, ConvoKit as CK, loadConfig, getConfig } from "./dist"
+
 config(); // Load environment variables from .env file
 await loadConfig(); // Load configuration
+
 
 // Main execution function
 async function main(): Promise<void> {
     ckl.time("Main", "Total processing time");
     const ConvoKit = new CK();
+
+    // Lets load a custom provider we made
+    await ConvoKit.addProviderFromFile("./telegram")
+    /* Does the same as:
+    await import("./telegram") 
+    */
 
     // Load providers
     await ConvoKit.loadProviders();

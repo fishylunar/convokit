@@ -1,4 +1,4 @@
-import {CKTurnListConversation } from '../../types/ConvoKitTypes'
+import {CKTurnListConversation } from '../../..';
 
 export async function convertToChatML(CKTurnListConversations:CKTurnListConversation[], systemPrompt: string): Promise<string[]> {
   return CKTurnListConversations

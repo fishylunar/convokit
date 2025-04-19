@@ -1,4 +1,4 @@
-import { ConvoKitProviderConstructor, ConvoKitProviderInfo } from './types/ConvoKitProvider';
+import { ConvoKitProviderConstructor, ConvoKitProviderInfo } from '..';
 
 /**
  * Registry entry for a provider.

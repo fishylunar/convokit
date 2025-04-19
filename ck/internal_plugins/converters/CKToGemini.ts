@@ -1,4 +1,4 @@
-import {CKTurnListConversation, GeminiMessage, GeminiConversation } from '../../types/ConvoKitTypes'
+import {CKTurnListConversation, GeminiMessage, GeminiConversation } from '../../..';
 
 export async function convertToGemini(CKTurnListConversations:CKTurnListConversation[], systemPrompt: string): Promise<string[]> {
     let GeminiConversations: string[] = [];

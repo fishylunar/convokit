@@ -1,9 +1,7 @@
 
-import { ConvoKitConversation, ConvoKitMessage } from '../ck/types/ConvoKitTypes';
-import { ConvoKitProvider } from '../ck/types/ConvoKitProvider';
-import { ProviderRegistry } from '../ck/ProviderRegistry';
-import { getConfig, loadConfig } from '../ck/ConvoKitConfig';
-import { ConvoKitLogging as ckl } from '../ck/ConvoKitLogging';
+import { ConvoKitConversation, ConvoKitMessage, ConvoKitProvider,
+    ProviderRegistry, getConfig, loadConfig,
+    ConvoKitLogging as ckl } from '..';
 // Ensure configuration is loaded before defining provider logic that might depend on it.
 await loadConfig();
 
@@ -89,17 +87,18 @@ function checkIfCompatible(chat_data: TelegramChat): boolean {
             return false;
         }
         if (typeof message.id !== 'number') {
-            console.debug(`checkIfCompatible failed: message.id is not a string (got: ${message.id})`);
+            ckl.debug(`checkIfCompatible failed: message.id is not a string (got: ${message.id})`);
             return false;
         }
         if (typeof message.type !== 'string') {
-            console.debug(`checkIfCompatible failed: message.type is not a string (got: ${message.type})`);
+            ckl.debug(`checkIfCompatible failed: message.type is not a string (got: ${message.type})`);
             return false;
         }
         try {
             new Date(message.date);
         } catch (e) {
-            console.debug(`checkIfCompatible failed: message.date is not a valid date (got: ${message.date})`);
+            ckl.debug(`checkIfCompatible failed: message.date is not a valid date (got: ${message.date})`);
+            ckl.error("Provider: Telegram", e);
             return false;
         }
         if (typeof message.date_unixtime !== 'string') {
@@ -175,7 +174,7 @@ function getSenderAndReceiverInfo(chat_data: TelegramChat): { sender: { id: stri
     } };
 }
 
-function convertToLLMConvoKitFormat(chat_data: TelegramChat): ConvoKitConversation {
+function convertToConvoKitFormat(chat_data: TelegramChat): ConvoKitConversation {
     let conversationId = chat_data.id.toString();
     if(getConfig().anonymizeProviderConversationIds) {
         conversationId = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
@@ -229,7 +228,7 @@ export class Provider implements ConvoKitProvider  {
         return checkIfCompatible(this.Data);
     }
     Convert(): ConvoKitConversation {
-        return convertToLLMConvoKitFormat(this.Data);
+        return convertToConvoKitFormat(this.Data);
     }
 }
 

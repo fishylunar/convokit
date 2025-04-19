@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
-      "module": "es2022",
+      "target": "ES2020",
+      "module": "ESNext",
+      "allowJs":false,
       "esModuleInterop": true,
-      "target": "ES2022",
-      "moduleResolution": "Node",
-      "sourceMap": false,
+      "moduleResolution": "node",
+      "sourceMap": true,
       "outDir": "dist",
       "skipLibCheck": true,
+      "declaration": true,
+      "declarationMap": true,
       "typeRoots": [
         "./node_modules/@types",
         "./ck/types"
@@ -14,6 +17,9 @@
     },
     "lib": ["ES2022"],
     "exclude": [
+      "dist",
+      "example.ts",
+      "geminiConversationTest.ts",
       "**/*.spec.ts",
       "**/*.test.ts",
       "**/test/**",

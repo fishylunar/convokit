@@ -1,9 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-
-/** Defines the structure for identifying a target user within a specific provider. */
-export interface ConvoKitTargetUser { providerId: string; id: string; }
-
+import { ConvoKitTargetUser } from './types/ConvoKitTypes';
 /**
  * Shape of the ConvoKit configuration.
  */

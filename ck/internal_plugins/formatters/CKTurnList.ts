@@ -1,6 +1,4 @@
-import  {CKTurnListConversation } from '../../types/ConvoKitTypes';
-import { ConvoKitLogging as ckl } from "../../ConvoKitLogging";
-import { loadConfig, getConfig } from '../../ConvoKitConfig';
+import { loadConfig, getConfig, ConvoKitLogging as ckl, CKTurnListConversation } from '../../../';
 
 await loadConfig();
 

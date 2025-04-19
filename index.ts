@@ -18,6 +18,14 @@ const __dirname = Path.dirname(__filename);
 
 config(); // Load environment variables
 
+export * from './ck/types/ConvoKitTypes';
+export * from './ck/types/ConvoKitProvider';
+export * from './ck/types/PluginTypes';
+export * from './ck/ConvoKitConfig';
+export * from './ck/ConvoKitLogging';
+export * from './ck/ProviderRegistry';
+export * from './ck/PluginRegistry';
+
 // Store both the provider constructor and its info
 interface LoadedProviderModule {
     Provider: ConvoKitProviderConstructor;
@@ -33,6 +41,20 @@ export class ConvoKit {
 
     constructor() {
         // Constructor can be used for initial setup if needed later
+    }
+
+    /**
+     * Load a provider module from a file.
+     * @param filePath Path to the provider module file.
+     */
+    async addProviderFromFile(filePath: string): Promise<void> {
+        try {
+            const modulePath = Path.resolve(filePath);
+            ckl.debug('ConvoKit', `Importing provider module: ${modulePath}`);
+            await import(modulePath);
+        } catch (err) {
+            ckl.error('ConvoKit', `Error loading provider module from ${filePath}: ${err}`);
+        }
     }
 
     /**
@@ -67,7 +89,7 @@ export class ConvoKit {
     async anonymizeProviderData(): Promise<void> {
         ckl.time("ConvoKit", "Anonymizing provider data");
         const { inputDataDirName } = getConfig();
-        const baseDataDir = Path.join(__dirname, `./${inputDataDirName}`);
+        const baseDataDir = Path.join(`./${inputDataDirName}`);
         let providerDirs: string[];
         try {
             providerDirs = await fs.readdir(baseDataDir);
@@ -193,8 +215,8 @@ export class ConvoKit {
                         const providerInstance = new providerModule.Provider(chat_data);
                         const isCompatible = providerInstance.Test();
                         if (isCompatible) {
-                            const llmConvoKitFormat = providerInstance.Convert();
-                            this.convoKitFormattedData.push(llmConvoKitFormat);
+                            const ConvoKitFormat = providerInstance.Convert();
+                            this.convoKitFormattedData.push(ConvoKitFormat);
                             ckl.info(`Provider: ${providerInfo.name}`, `Converted data from ${file} to ConvoKit format`);
                         } else {
                             ckl.error(`Provider: ${providerInfo.name}`, `Data in ${file} is NOT compatible with the provider.`);

@@ -1,7 +1,5 @@
-import { PluginRegistry } from '../../ck/PluginRegistry';
-import type { ConverterPluginClass } from '../../ck/types/PluginTypes';
+import { PluginRegistry, type CKTurnListConversation, type ConverterPluginClass } from '../..';
 import { convertToGemini } from '../../ck/internal_plugins/converters/CKToGemini';
-import type { CKTurnListConversation } from '../../ck/types/ConvoKitTypes';
 
 export class GeminiConverter implements ConverterPluginClass {
   PluginInfo = {
