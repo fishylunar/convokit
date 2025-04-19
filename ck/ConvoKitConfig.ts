@@ -25,6 +25,10 @@ export interface ConvoKitConfig {
   enableWarnings?: boolean
   /** optional, Whether or not we should anonymize provider conversation ids */
   anonymizeProviderConversationIds?: boolean
+  /** optional, where to load local providers from */
+  localProvidersDir?: string
+  /** optional, where to load local formatters from */
+  localPluginsDir?: string
 }
 
 const CONFIG_FILE = 'convokit.config.json';
@@ -74,6 +78,8 @@ export async function loadConfig(): Promise<ConvoKitConfig> {
     shouldMergeConsecutiveMessages: fileConfig.shouldMergeConsecutiveMessages !== undefined ? fileConfig.shouldMergeConsecutiveMessages : parseEnvBool('CK_SHOULD_MERGE_CONSECUTIVE_MESSAGES', false),
     enableWarnings: fileConfig.enableWarnings !== undefined ? fileConfig.enableWarnings : parseEnvBool('CK_ENABLE_WARNINGS', true),
     anonymizeProviderConversationIds: fileConfig.anonymizeProviderConversationIds !== undefined ? fileConfig.anonymizeProviderConversationIds : parseEnvBool('CK_ANONYMIZE_PROVIDER_CONVERSATION_IDS', false),
+    localProvidersDir: fileConfig.localProvidersDir || env.CK_LOCAL_PROVIDERS_DIR,
+    localPluginsDir: fileConfig.localPluginsDir || env.CK_LOCAL_PLUGINS_DIR,
   };
 
   // Validate required fields

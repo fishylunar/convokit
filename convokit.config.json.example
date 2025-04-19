@@ -10,5 +10,7 @@
     "enableDebugging": false,
     "shouldMergeConsecutiveMessages": false,
     "enableWarnings": false,
-    "anonymizeProviderConversationIds": true
+    "anonymizeProviderConversationIds": true,
+    "localProvidersDir": "LocalPlugins",
+    "localPluginsDir": "LocalPlugins"
 }

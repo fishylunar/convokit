@@ -92,9 +92,7 @@ Cannot:
 ## Installation
 
 ```bash
-git clone https://github.com/fishylunar/convokit.git
-cd convokit
-npm install
+npm i convokit
 ```
 
 ---
@@ -102,15 +100,16 @@ npm install
 ## Quick Start
 
 ```ts
-import { ConvoKit } from './index';
+import { ConvoKit, loadConfig, getConfig } from 'convokit';
 import { config } from 'dotenv';
-import { loadConfig, getConfig } from './ck/ConvoKitConfig'
+
 config();
 await loadConfig();
 
 async function run() {
   const ck = new ConvoKit();
-  await ck.loadProviders();
+  await ck.loadProviders(); // This will load all included providers, and the providers in the LocalProvidersDir if set (in config)
+  // We also automatically load all included plugins & the plugins in LocalPluginsDir if set (in config)
   const convoData = await ck.processDataFromProviders();
 
   const context = await ck.parseToContext({ targetUsers: getConfig().targetUsers });
@@ -130,7 +129,7 @@ run();
 
 ## Configuration
 
-By default, ConvoKit reads convokit.config.json or environment variables:
+By default, ConvoKit reads convokit.config.json or environment variables - Here is an example config file
 
 ```jsonc
 {
@@ -145,7 +144,9 @@ By default, ConvoKit reads convokit.config.json or environment variables:
   "enablePerformanceStats": false,
   "shouldMergeConsecutiveMessages": true,
   "enableWarnings": true,
-  "anonymizeProviderConversationIds": false
+  "anonymizeProviderConversationIds": false,
+  "localProvidersDir": "LocalProviders",
+  "localPluginsDir": "LocalPlugins",
 }
 ```
 
@@ -161,6 +162,8 @@ By default, ConvoKit reads convokit.config.json or environment variables:
 | shouldMergeConsecutiveMessages (optional)| Merge consecutive messages when converting to CKTurnList.                          |
 | enableWarnings (optional)               | Toggle the display of warning messages.                                              |
 | anonymizeProviderConversationIds (optional)| Anonymize provider conversation IDs to protect sensitive data.                  |
+| localProviderDirectory (optional)| Directory name of where to load custom providers from.                  |
+| localPluginDirectory (optional)| Directory name of where to load custom plugins from. (Contains a folder for each plugin type (formatters, filters, converters)! ) |
 
 ---
 
@@ -199,6 +202,9 @@ ConvoKit discovers providers from providers via `ProviderRegistry`. Each provide
 ### Writing Your Own Provider
 
 1. Create `/providers/MyPlatform.ts`.  
+
+> To make a local provider, put the `MyPlatform.ts` file in the LocalProvidersDir you specified in your config. If you are contributing and making a provider to be included in ConvoKit, put it in `/providers/MyPlatform.ts`
+
 2. Define your data schema, compatibility check, and conversion:
 
 ```ts

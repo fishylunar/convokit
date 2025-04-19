@@ -13,7 +13,7 @@ async function main(): Promise<void> {
     const ConvoKit = new CK();
 
     // Lets load a custom provider we made
-    await ConvoKit.addProviderFromFile("./telegram")
+    // await ConvoKit.addProviderFromFile("./telegram")
     /* Does the same as:
     await import("./telegram") 
     */

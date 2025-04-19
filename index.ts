@@ -81,6 +81,30 @@ export class ConvoKit {
                 ckl.debug('PluginLoader', `No plugin directory for type ${type} (${err.message}).`);
             }
         }
+
+        // Load local plugins
+        if (getConfig().localPluginsDir) {
+            const localPluginsBase = `./${getConfig().localPluginsDir}`;
+            for (const type of ['formatters', 'converters', 'filters']) {
+                const dir = Path.join(localPluginsBase, type);
+                try {
+                    const files = await fs.readdir(dir);
+                    for (const file of files) {
+                        if (file.endsWith('.ts') || file.endsWith('.js')) {
+                            const filePath = Path.join(dir, file);
+                            ckl.debug('PluginLoader', `Importing local plugin module: ${filePath}`);
+                            try {
+                                await import(pathToFileURL(filePath).href);
+                            } catch (importErr) {
+                                ckl.error('PluginLoader', `Failed to load local plugin module ${filePath}: ${importErr}`);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    ckl.debug('PluginLoader', `No local plugin directory for type ${type} (${err.message}).`);
+                }
+            }
+        }
     }
 
     /**
@@ -137,7 +161,7 @@ export class ConvoKit {
         // Load plugin classes
         await this.loadPlugins();
 
-        // Dynamically import all provider modules so they self-register
+        // Dynamically import all included provider modules so they self-register
         const providersDir = Path.join(__dirname, 'providers');
         try {
             const providerFiles = await fs.readdir(providersDir);
@@ -149,6 +173,22 @@ export class ConvoKit {
             }
         } catch (err) {
             ckl.error('ConvoKit', `Error loading provider modules: ${err}`);
+        }
+
+        // Dynamically load all local provider modules so they self-register
+        if (getConfig().localProvidersDir) {
+            const localProvidersDir = `./${getConfig().localProvidersDir}`;
+            try {
+                const providerFiles = await fs.readdir(localProvidersDir);
+                for (const file of providerFiles) {
+                    if (file.endsWith('.ts') || file.endsWith('.js')) {
+                        const modulePath = Path.join(localProvidersDir, file);
+                        await import(modulePath);
+                    }
+                }
+            } catch (err) {
+                ckl.error('ConvoKit', `Error loading local provider modules: ${err}`);
+            }
         }
 
         const { inputDataDirName } = getConfig();
