@@ -123,6 +123,9 @@ async function run() {
 run();
 ```
 
+> make sure you have set up providers and dir structure first
+
+
 ---
 
 ## Configuration
@@ -131,12 +134,6 @@ By default, ConvoKit reads convokit.config.json or environment variables:
 
 ```jsonc
 {
-  "inputDataDirName": "InputData",
-  "outputDataDirName": "OutputData",
-  "targetUsers": [
-    { "providerId": "discord", "id": "YOUR_DISCORD_USER_ID" }
-  ],
-  "sampleSize": 5000,
   "inputDataDirName": "InputData",
   "outputDataDirName": "OutputData",
   "targetUsers": [
