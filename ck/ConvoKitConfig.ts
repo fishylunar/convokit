@@ -15,6 +15,10 @@ export interface ConvoKitConfig {
   sampleSize: number;
   /** System prompt used in ChatML/Gemini exports. */
   systemPrompt: string;
+  /** optional, Minimum importance score for a conversation to be included in CKContext (0-10000+). Default: 120 */
+  minImportanceChat?: number;
+  /** optional, Minimum importance score for a single message to be included in CKContext (0-10000+). Default: 100 */
+  minImportanceMessage?: number;
   /** optional, Enable or disable debug logs */
   enableDebugging?: boolean
   /** optional, Enable or disable performance stats (timers) */
@@ -31,7 +35,10 @@ export interface ConvoKitConfig {
   localPluginsDir?: string
 }
 
-const CONFIG_FILE = 'convokit.config.json';
+let CONFIG_FILE = 'convokit.config.json';
+if (process.env.CK_CONFIG_FILE) {
+  CONFIG_FILE = process.env.CK_CONFIG_FILE;
+}
 
 let _config: ConvoKitConfig | null = null;
 
@@ -73,6 +80,8 @@ export async function loadConfig(): Promise<ConvoKitConfig> {
     targetUsers: fileConfig.targetUsers || envTargetUsers,
     sampleSize: Number(fileConfig.sampleSize || env.CK_SAMPLE_SIZE || 5000),
     systemPrompt: fileConfig.systemPrompt || env.CK_SYSTEM_PROMPT || '',
+    minImportanceChat: Number(fileConfig.minImportanceChat || env.CK_MIN_IMPORTANCE_CHAT || 120),
+    minImportanceMessage: Number(fileConfig.minImportanceMessage || env.CK_MIN_IMPORTANCE_MESSAGE || 100),
     enableDebugging: fileConfig.enableDebugging !== undefined ? fileConfig.enableDebugging : parseEnvBool('CK_ENABLE_DEBUGGING', false),
     enablePerformanceStats: fileConfig.enablePerformanceStats !== undefined ? fileConfig.enablePerformanceStats : parseEnvBool('CK_ENABLE_PERFORMANCE_STATS', true),
     shouldMergeConsecutiveMessages: fileConfig.shouldMergeConsecutiveMessages !== undefined ? fileConfig.shouldMergeConsecutiveMessages : parseEnvBool('CK_SHOULD_MERGE_CONSECUTIVE_MESSAGES', false),
@@ -88,8 +97,11 @@ export async function loadConfig(): Promise<ConvoKitConfig> {
   if (!Array.isArray(config.targetUsers) || config.targetUsers.length === 0) missing.push('targetUsers or environment variable TARGET_USERS');
   if (!config.sampleSize || isNaN(config.sampleSize)) missing.push('sampleSize or environment variable SAMPLE_SIZE');
   if (!config.systemPrompt) missing.push('systemPrompt or environment variable SYSTEM_PROMPT');
+  if (isNaN(config.minImportanceChat)) missing.push('minImportanceChat must be a number');
+  if (isNaN(config.minImportanceMessage)) missing.push('minImportanceMessage must be a number');
+
   if (missing.length) {
-    throw new Error(`Missing configuration: ${missing.join(', ')}`);
+    throw new Error(`Missing or invalid configuration: ${missing.join(', ')}`);
   }
   _config = config as ConvoKitConfig;
   return _config;

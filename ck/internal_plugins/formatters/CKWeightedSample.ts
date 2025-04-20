@@ -1,4 +1,4 @@
-import { ConvoKitLogging as ckl, CKTurnListConversation } from "../../../";
+import { ConvoKitLogging as ckl, CKTurnListConversation } from "../../../index";
 
 export async function CKWeightedSample(CKTurnListConversations: CKTurnListConversation[], Samples: number): Promise<CKTurnListConversation[]> {
   ckl.time("CKWeightedSample", "Creating weighted sample");

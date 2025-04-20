@@ -1,4 +1,4 @@
-import {CKTurnListConversation, GeminiMessage, GeminiConversation } from '../../..';
+import {CKTurnListConversation, GeminiMessage, GeminiConversation } from '../../../index';
 
 export async function convertToGemini(CKTurnListConversations:CKTurnListConversation[], systemPrompt: string): Promise<string[]> {
     let GeminiConversations: string[] = [];

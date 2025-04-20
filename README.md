@@ -18,6 +18,7 @@ ConvoKit saves you time building data preprocessing pipelines and lets you focus
 - Installation  
 - Quick Start  
 - Configuration  
+- CLI Usage  
 - Provider Registry  
   - Built‑in Providers  
   - Writing Your Own Provider  
@@ -92,12 +93,16 @@ Cannot:
 ## Installation
 
 ```bash
-npm i convokit
+# Install globally (recommended for CLI use)
+npm install -g convokit
+
+# Or install locally in your project
+npm install convokit
 ```
 
 ---
 
-## Quick Start
+## Quick Start (Using the Library)
 
 ```ts
 import { ConvoKit, loadConfig, getConfig } from 'convokit';
@@ -122,7 +127,7 @@ async function run() {
 run();
 ```
 
-> make sure you have set up providers and dir structure first
+> Make sure you have set up providers and dir structure first
 
 
 ---
@@ -140,6 +145,8 @@ By default, ConvoKit reads convokit.config.json or environment variables - Here 
   ],
   "sampleSize": 5000,
   "systemPrompt": "You are a helpful assistant.",
+  "minImportanceChat": 120,
+  "minImportanceMessage": 100,
   "enableDebugging": false,
   "enablePerformanceStats": false,
   "shouldMergeConsecutiveMessages": true,
@@ -157,6 +164,8 @@ By default, ConvoKit reads convokit.config.json or environment variables - Here 
 | targetUsers                       | JSON array mapping each provider to a target user ID for context generation.         |
 | sampleSize                              | Number of conversations to sample by importance.                                     |
 | systemPrompt                            | System prompt used in ChatML/Gemini exports.                                          |
+| minImportanceChat (optional)            | Minimum average importance score for a conversation (default: 120).                  |
+| minImportanceMessage (optional)         | Minimum importance score for a single message (default: 100).                        |
 | enableDebugging (optional)              | Enable or disable debug-level logs.                                                  |
 | enablePerformanceStats (optional)       | Enable or disable performance stats (timers).                                        |
 | shouldMergeConsecutiveMessages (optional)| Merge consecutive messages when converting to CKTurnList.                          |
@@ -187,6 +196,88 @@ convokit/
 
 
 ---
+
+## CLI Usage
+
+ConvoKit provides a command-line interface (CLI) for running the processing pipeline without writing TypeScript code. Ensure you have a valid `convokit.config.json` file in your project root or have set the corresponding environment variables.
+
+**Running Commands:**
+
+```bash
+# If installed globally
+convokit <command> [options]
+
+# If installed locally, using npx
+npx convokit <command> [options]
+
+# Or via package.json script
+# "scripts": { "ck": "convokit" }
+# npm run ck -- <command> [options]
+```
+
+**Common Options:**
+
+*   `-p, --providers <ids>`: Specify a comma-separated list of provider IDs (e.g., `discord,telegram`) to process data from. If omitted, ConvoKit will attempt to use data from all providers found in your `inputDataDirName` that are registered.
+*   `-o, --output <file>`: Specify an output file path to save the results of commands like `context` or `export`. If omitted, results are generated but not saved to a file (stats/logs will still be shown).
+
+**Commands:**
+
+*   `create-config` (alias: `cfg`): Creates an example `convokit.config.json` file in the current directory. Run this first if you don't have a config file.
+    ```bash
+    convokit create-config
+    ```
+*   `providers`: Lists all registered providers (built-in and local) found by ConvoKit, including their ID, name, version, and expected input directory/extension. Useful for verifying provider setup and getting IDs for the `--providers` option.
+    ```bash
+    convokit providers
+    ```
+*   `plugins`: Lists all registered plugins (formatters, converters, filters), including built-in and local ones. Shows plugin ID, name, and version. Useful for finding the `<converter_id>` for the `export` command.
+    ```bash
+    convokit plugins
+    ```
+*   `context`: Processes data from specified (or all) providers and generates the `CKContext` output based on your configuration (`targetUsers`, importance scores, etc.).
+    ```bash
+    # Generate context from all providers and save to context.txt
+    convokit context -o context.txt
+
+    # Generate context using only 'discord' provider data and save
+    convokit context --providers discord -o discord_context.txt
+
+    # Generate context from all providers and save to context.json including stats
+    convokit context -o context.json --stats
+    ```
+*   `export <converter_id>`: Runs the full pipeline: loads data, processes it, generates context, converts to turn list, performs weighted sampling (using `sampleSize` from config), and finally exports the data using the specified `<converter_id>`.
+    ```bash
+    # Export data using the 'chatml' converter, save to chatml_export.jsonl
+    convokit export chatml -o chatml_export.jsonl
+
+    # Export using 'gemini' converter from 'telegram' provider only, save output
+    convokit export gemini --providers telegram -o telegram_gemini.jsonl
+    ```
+
+**Example Workflow:**
+
+```bash
+# 1. Create a config file if you don't have one
+convokit create-config
+# (Edit convokit.config.json with your settings: input dir, target users, etc.)
+
+# 2. Check which providers are available
+convokit providers
+# Output might show: ID: discord, ID: telegram
+
+# 3. Check available export formats (converters)
+convokit plugins
+# Output might show Converters: ID: chatml, ID: gemini
+
+# 4. Run the full export pipeline for ChatML using all providers
+convokit export chatml -o training_data.jsonl
+
+# 5. (Alternative) Generate only the CKContext for analysis
+convokit context -o analysis_context.json
+```
+
+---
+
 ## Provider Registry
 
 ConvoKit discovers providers from providers via `ProviderRegistry`. Each provider must:
@@ -198,6 +289,10 @@ ConvoKit discovers providers from providers via `ProviderRegistry`. Each provide
 ### Built‑in Providers
 
 - **Discord** (`providers/discord.ts`): Reads JSON exports from DiscordChatExporter.
+- **Telegram** (`providers/telegram.ts`): Reads JSON exports from the Telegram Desktop app.
+
+> Contributions are more than welcome! <3
+
 
 ### Writing Your Own Provider
 

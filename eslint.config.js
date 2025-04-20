@@ -7,7 +7,7 @@ import { defineConfig } from "eslint/config";
 export default defineConfig([
   // Ignore specific files globally
   {
-    ignores: ["geminiConversationTest.ts", "dist/**"], // Added ignores for specific file and dist folder
+    ignores: ["example.ts", "geminiConversationTest.ts", "dist/**"], // Added ignores for specific file and dist folder
   },
   
   // Base JS configuration
@@ -40,8 +40,7 @@ export default defineConfig([
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-       '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
-       '@typescript-eslint/explicit-function-return-type': 'warn',
+       '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }]
     },
   },
 ]);

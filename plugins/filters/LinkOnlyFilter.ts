@@ -1,4 +1,4 @@
-import { PluginRegistry, type FilterPluginClass } from '../..';
+import { PluginRegistry, type FilterPluginClass } from '../../index';
 
 export class LinkOnlyFilter implements FilterPluginClass {
   PluginInfo = {

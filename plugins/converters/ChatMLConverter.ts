@@ -1,4 +1,4 @@
-import { PluginRegistry, type ConverterPluginClass, type CKTurnListConversation } from '../..';
+import { PluginRegistry, type ConverterPluginClass, type CKTurnListConversation } from '../../index';
 import { convertToChatML } from '../../ck/internal_plugins/converters/CKToChatML';
 
 export class ChatMLConverter implements ConverterPluginClass {

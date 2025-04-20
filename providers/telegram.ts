@@ -1,7 +1,7 @@
 
 import { ConvoKitConversation, ConvoKitMessage, ConvoKitProvider,
     ProviderRegistry, getConfig, loadConfig,
-    ConvoKitLogging as ckl } from '..';
+    ConvoKitLogging as ckl } from '../index';
 // Ensure configuration is loaded before defining provider logic that might depend on it.
 await loadConfig();
 

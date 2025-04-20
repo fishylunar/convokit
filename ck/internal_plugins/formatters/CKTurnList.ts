@@ -1,8 +1,25 @@
-import { loadConfig, getConfig, ConvoKitLogging as ckl, CKTurnListConversation } from '../../../';
+import { loadConfig, ConvoKitLogging as ckl, CKTurnListConversation } from '../../../index';
 
-await loadConfig();
+// Load config once at the start
+let configLoaded = false;
+let shouldMergeConsecutiveMessages = false;
+
+async function ensureConfigLoaded():Promise<void> {
+    if (!configLoaded) {
+        try {
+            const config = await loadConfig();
+            shouldMergeConsecutiveMessages = config.shouldMergeConsecutiveMessages ?? false;
+            configLoaded = true;
+        } catch (err) {
+            // Log error during initial load attempt, but allow logging functions to work
+            console.error(`[ERROR] ${new Date().toISOString()} - ConvoKitConfig: Failed to load config initially: ${err.message}`);
+            // Use default logging settings if config fails
+        }
+    }
+}
 
 export async function CKContextToCKTurnList(CKContext: string): Promise<CKTurnListConversation[]> {
+  await ensureConfigLoaded(); // Ensure config is loaded before processing
   ckl.time("CKContextToCKTurnList", "Converting CKContext to CKTurnList");
   const conversations:CKTurnListConversation[] = [];
   let currentConv:CKTurnListConversation = [];
@@ -28,7 +45,7 @@ export async function CKContextToCKTurnList(CKContext: string): Promise<CKTurnLi
 
     // Merge consecutive messages by same speaker
     if (currentConv.length > 0 && currentConv[currentConv.length - 1].role === role) {
-      if(getConfig().shouldMergeConsecutiveMessages) {
+      if(shouldMergeConsecutiveMessages) {
         mergedConsecutiveMessagesCount++;
         currentConv[currentConv.length - 1].content += '\n' + content;
       } else {
@@ -40,7 +57,7 @@ export async function CKContextToCKTurnList(CKContext: string): Promise<CKTurnLi
     }
   }
   if (currentConv.length > 0) conversations.push(currentConv);
-  if (getConfig().shouldMergeConsecutiveMessages) {
+  if (shouldMergeConsecutiveMessages) {
     ckl.info('Merged consecutive messages:', mergedConsecutiveMessagesCount);
   }
   ckl.timeEnd("CKContextToCKTurnList", "Converting CKContext to CKTurnList");

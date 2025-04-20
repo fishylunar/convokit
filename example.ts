@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import Path from 'path'
 import { config } from "dotenv";
-import { ConvoKitLogging as ckl, ConvoKit as CK, loadConfig, getConfig } from "./dist"
+import { ConvoKitLogging as ckl, ConvoKit as CK, loadConfig, getConfig } from "./index"
 
 config(); // Load environment variables from .env file
 await loadConfig(); // Load configuration

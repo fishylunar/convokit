@@ -1,4 +1,4 @@
-import { ConvoKitProviderConstructor, ConvoKitProviderInfo } from '..';
+import { ConvoKitProviderConstructor, ConvoKitProviderInfo } from '../index';
 
 /**
  * Registry entry for a provider.
@@ -40,5 +40,19 @@ export class ProviderRegistry {
    */
   static list(): ProviderRegistryEntry[] {
     return Array.from(ProviderRegistry.registry.values());
+  }
+
+  /**
+   * Finds the registered ID for a given provider constructor.
+   * @param ctor The provider constructor to find the ID for.
+   * @returns The ID if found, otherwise undefined.
+   */
+  static findIdByConstructor(ctor: ConvoKitProviderConstructor): string | undefined {
+    for (const [id, entry] of this.registry.entries()) {
+      if (entry.ctor === ctor) {
+        return id;
+      }
+    }
+    return undefined;
   }
 }

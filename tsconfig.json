@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-      "target": "ES2020",
+      "target": "ESNext",
       "module": "ESNext",
-      "allowJs":false,
+      "allowJs": false,
       "esModuleInterop": true,
       "moduleResolution": "node",
       "sourceMap": true,
@@ -13,11 +13,18 @@
       "typeRoots": [
         "./node_modules/@types",
         "./ck/types"
-      ],
+      ]
     },
     "lib": ["ES2022"],
+    "include": [
+        "index.ts",
+        "cli.ts",
+        "ck/**/*.ts",
+        "providers/**/*.ts",
+        "plugins/**/*.ts"
+    ],
     "exclude": [
-      "dist",
+      "dist/",
       "example.ts",
       "geminiConversationTest.ts",
       "**/*.spec.ts",
@@ -25,7 +32,11 @@
       "**/test/**",
       "**/tests/**",
       "**/test-helpers/**",
-      "**/tests-helpers/**"
+      "**/tests-helpers/**",
+      "node_modules"
     ],
+    "tsc-alias": {
+      "resolveFullPaths": true,
+      "verbose": false
+    }
   }
-  

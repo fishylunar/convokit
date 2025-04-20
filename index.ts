@@ -13,6 +13,7 @@ import { CKContextToCKTurnList } from './ck/internal_plugins/formatters/CKTurnLi
 import { CKWeightedSample } from './ck/internal_plugins/formatters/CKWeightedSample';
 import crypto from 'crypto';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = Path.dirname(__filename);
 
@@ -40,7 +41,6 @@ export class ConvoKit {
     private sampledConversations: CKTurnListConversation[] = [];
 
     constructor() {
-        // Constructor can be used for initial setup if needed later
     }
 
     /**
@@ -51,9 +51,12 @@ export class ConvoKit {
         try {
             const modulePath = Path.resolve(filePath);
             ckl.debug('ConvoKit', `Importing provider module: ${modulePath}`);
-            await import(modulePath);
+            // Convert the path to a URL to ensure import() works correctly
+            const moduleUrl = pathToFileURL(modulePath).href;
+            await import(moduleUrl);
         } catch (err) {
             ckl.error('ConvoKit', `Error loading provider module from ${filePath}: ${err}`);
+            throw err; // Re-throw to allow tests to catch errors
         }
     }
 
@@ -67,7 +70,7 @@ export class ConvoKit {
             try {
                 const files = await fs.readdir(dir);
                 for (const file of files) {
-                    if (file.endsWith('.ts') || file.endsWith('.js')) {
+                    if (file.endsWith('.ts') && !file.endsWith(".d.ts") || file.endsWith('.js')) {
                         const filePath = Path.join(dir, file);
                         ckl.debug('PluginLoader', `Importing plugin module: ${filePath}`);
                         try {
@@ -90,7 +93,7 @@ export class ConvoKit {
                 try {
                     const files = await fs.readdir(dir);
                     for (const file of files) {
-                        if (file.endsWith('.ts') || file.endsWith('.js')) {
+                        if (file.endsWith('.ts') && !file.endsWith(".d.ts") || file.endsWith('.js')) {
                             const filePath = Path.join(dir, file);
                             ckl.debug('PluginLoader', `Importing local plugin module: ${filePath}`);
                             try {
@@ -112,45 +115,78 @@ export class ConvoKit {
      */
     async anonymizeProviderData(): Promise<void> {
         ckl.time("ConvoKit", "Anonymizing provider data");
-        const { inputDataDirName } = getConfig();
-        const baseDataDir = Path.join(`./${inputDataDirName}`);
-        let providerDirs: string[];
+        
         try {
-            providerDirs = await fs.readdir(baseDataDir);
-        } catch (err) {
-            ckl.error("ConvoKit", `Error reading base data directory ${baseDataDir}: ${err.message}`);
-            return;
-        }
-        for (const folder of providerDirs) {
-            const providerDir = Path.join(baseDataDir, folder);
-            let stat;
+            const { inputDataDirName } = getConfig();
+            const baseDataDir = Path.join(`./${inputDataDirName}`);
+            
+            // Check if directory exists before trying to read it
             try {
-                stat = await fs.stat(providerDir);
+                await fs.access(baseDataDir);
             } catch (err) {
-                ckl.error("ConvoKit", `Error accessing ${providerDir}: ${err.message}`);
-                continue;
+                ckl.error("ConvoKit", `Input data directory ${baseDataDir} does not exist or is not accessible: ${err.message}`);
+                return;
             }
-            if (!stat.isDirectory()) continue;
-            let files: string[];
+
+            let providerDirs: string[];
             try {
-                files = await fs.readdir(providerDir);
+                providerDirs = await fs.readdir(baseDataDir);
             } catch (err) {
-                ckl.error("ConvoKit", `Error reading directory ${providerDir}: ${err.message}`);
-                continue;
+                ckl.error("ConvoKit", `Error reading base data directory ${baseDataDir}: ${err.message}`);
+                return;
             }
-            for (const file of files) {
-                const oldFilePath = Path.join(providerDir, file);
-                const ext = Path.extname(file);
-                const newName = crypto.randomBytes(8).toString('hex') + ext;
-                const newFilePath = Path.join(providerDir, newName);
+            
+            for (const folder of providerDirs) {
+                const providerDir = Path.join(baseDataDir, folder);
+                let stat;
                 try {
-                    await fs.rename(oldFilePath, newFilePath);
-                    ckl.debug("ConvoKit", `Renamed ${oldFilePath} to ${newFilePath}`);
+                    stat = await fs.stat(providerDir);
                 } catch (err) {
-                    ckl.error("ConvoKit", `Failed to rename ${oldFilePath}: ${err.message}`);
+                    ckl.error("ConvoKit", `Error accessing ${providerDir}: ${err.message}`);
+                    continue;
+                }
+                
+                if (!stat.isDirectory()) continue;
+                
+                let files: string[];
+                try {
+                    files = await fs.readdir(providerDir);
+                } catch (err) {
+                    ckl.error("ConvoKit", `Error reading directory ${providerDir}: ${err.message}`);
+                    continue;
+                }
+                
+                for (const file of files) {
+                    const oldFilePath = Path.join(providerDir, file);
+                    const ext = Path.extname(file);
+                    let newName;
+                    try {
+                        // Use node crypto if available, fallback to Math.random
+                        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                            newName = crypto.randomUUID().replace(/-/g, '').slice(0, 16) + ext;
+                        } else {
+                            newName = Math.random().toString(36).substring(2, 10) + 
+                                    Math.random().toString(36).substring(2, 10) + ext;
+                        }
+                    } catch (err) {
+                        // If crypto fails, use simple Math.random
+                        newName = Math.random().toString(36).substring(2, 10) + 
+                                Math.random().toString(36).substring(2, 10) + ext;
+                    }
+                    
+                    const newFilePath = Path.join(providerDir, newName);
+                    try {
+                        await fs.rename(oldFilePath, newFilePath);
+                        ckl.debug("ConvoKit", `Renamed ${oldFilePath} to ${newFilePath}`);
+                    } catch (err) {
+                        ckl.error("ConvoKit", `Failed to rename ${oldFilePath}: ${err.message}`);
+                    }
                 }
             }
+        } catch (err) {
+            ckl.error("ConvoKit", `Error during anonymization: ${err.message}`);
         }
+        
         ckl.timeEnd("ConvoKit", "Anonymizing provider data");
     }
 
@@ -166,8 +202,9 @@ export class ConvoKit {
         try {
             const providerFiles = await fs.readdir(providersDir);
             for (const file of providerFiles) {
-                if (file.endsWith('.ts') || file.endsWith('.js')) {
+                if (file.endsWith('.ts') && !file.endsWith(".d.ts") || file.endsWith('.js')) {
                     const modulePath = Path.join(providersDir, file);
+                    console.log(`Importing provider module: ${modulePath}`);
                     await import(modulePath);
                 }
             }
@@ -181,7 +218,7 @@ export class ConvoKit {
             try {
                 const providerFiles = await fs.readdir(localProvidersDir);
                 for (const file of providerFiles) {
-                    if (file.endsWith('.ts') || file.endsWith('.js')) {
+                    if (file.endsWith('.ts') && !file.endsWith(".d.ts") || file.endsWith('.js')) {
                         const modulePath = Path.join(localProvidersDir, file);
                         await import(modulePath);
                     }
